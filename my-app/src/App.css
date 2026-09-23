@@ -189,12 +189,12 @@
 }
 
 .field.is-marked {
-  background: rgba(0, 0, 0, 0.06);
+  background: #e7f3ff;
 }
 
 @media (prefers-color-scheme: dark) {
   .field.is-marked {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(120, 180, 255, 0.18);
   }
 }
 
