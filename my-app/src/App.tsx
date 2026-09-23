@@ -230,9 +230,10 @@ function Instructions() {
               </li>
               <li>
                 You are only finished when the confirmation screen appears. You
-                don't have to be worry about payments. Each person can only be
-                bought for once, so go ahead — the same registration cannot be
-                used twice. Once all is confirmed let me know immediately.
+                don't have to be worry about any double payments. Each person
+                can only be bought for once, so go ahead — the same registration
+                cannot be used twice. Once all is confirmed let me know
+                immediately.
               </li>
               <li>
                 Doing this you will make 6 people the happiest people in the
