@@ -215,7 +215,14 @@ function Instructions() {
                   Glastonbury tickets
                 </a>
               </li>
-              <li>Stay in the queue until you are let through.</li>
+              <li>
+                Stay in the queue until you are let through.
+                <img
+                  className="queue"
+                  src={`${import.meta.env.BASE_URL}queue.webp`}
+                  alt="See Tickets waiting queue"
+                />
+              </li>
               <li>
                 If you get through, enter a <strong>registration number</strong>{" "}
                 and <strong>postcode</strong> for all <strong>6 people</strong>.

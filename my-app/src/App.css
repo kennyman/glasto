@@ -115,6 +115,10 @@
   border-radius: 8px;
 }
 
+.steps img.queue {
+  width: 180px;
+}
+
 .tickets {
   display: inline-flex;
   align-items: center;
