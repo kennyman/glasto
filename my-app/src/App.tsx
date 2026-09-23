@@ -44,13 +44,25 @@ function CopyButton({
   );
 }
 
+function Marker() {
+  return (
+    <span className="marker" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 12h16M13 5l7 7-7 7" />
+      </svg>
+    </span>
+  );
+}
+
 function PersonCard({
   person,
   copied,
+  marked,
   onCopy,
 }: {
   person: Person;
   copied: string | null;
+  marked: string | null;
   onCopy: (id: string, value: string) => void;
 }) {
   const id = `${person.group}-${person.name}`;
@@ -61,7 +73,10 @@ function PersonCard({
       {person.registration ? (
         <div className="field">
           <span className="label">Registration number</span>
-          <span className="value">{person.registration}</span>
+          <span className="value">
+            {marked === `${id}-reg` ? <Marker /> : null}
+            {person.registration}
+          </span>
           <CopyButton
             value={person.registration}
             label={`registration number ${person.registration}`}
@@ -73,7 +88,10 @@ function PersonCard({
       {person.postcode ? (
         <div className="field">
           <span className="label">Postcode</span>
-          <span className="value">{person.postcode}</span>
+          <span className="value">
+            {marked === `${id}-pc` ? <Marker /> : null}
+            {person.postcode}
+          </span>
           <CopyButton
             value={person.postcode}
             label={`postcode ${person.postcode}`}
@@ -236,7 +254,7 @@ function Instructions() {
                 immediately.
               </li>
               <li>
-                Doing this you will make 6 people the happiest people in the
+                By doing this you will make 6 people the happiest people in the
                 world. &hearts;
               </li>
             </ol>
@@ -251,6 +269,7 @@ function App() {
   const [people, setPeople] = useState<Person[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [marked, setMarked] = useState<string | null>(null);
   const groupNumber = groupNumberFromPath(window.location.pathname);
 
   useEffect(() => {
@@ -269,6 +288,7 @@ function App() {
 
   function copy(id: string, value: string) {
     navigator.clipboard.writeText(value).then(() => {
+      setMarked(id);
       setCopied(id);
       window.setTimeout(() => {
         setCopied((current) => (current === id ? null : current));
@@ -321,6 +341,7 @@ function App() {
                   key={`${person.group}-${person.name}`}
                   person={person}
                   copied={copied}
+                  marked={marked}
                   onCopy={copy}
                 />
               ))}
