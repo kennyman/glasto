@@ -44,16 +44,6 @@ function CopyButton({
   );
 }
 
-function Marker() {
-  return (
-    <span className="marker" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M3 12h16M13 5l7 7-7 7" />
-      </svg>
-    </span>
-  );
-}
-
 function PersonCard({
   person,
   copied,
@@ -71,12 +61,9 @@ function PersonCard({
     <li className="entry">
       <h2 className="name">{person.name}</h2>
       {person.registration ? (
-        <div className="field">
+        <div className={marked === `${id}-reg` ? "field is-marked" : "field"}>
           <span className="label">Registration number</span>
-          <span className="value">
-            {marked === `${id}-reg` ? <Marker /> : null}
-            {person.registration}
-          </span>
+          <span className="value">{person.registration}</span>
           <CopyButton
             value={person.registration}
             label={`registration number ${person.registration}`}
@@ -86,12 +73,9 @@ function PersonCard({
         </div>
       ) : null}
       {person.postcode ? (
-        <div className="field">
+        <div className={marked === `${id}-pc` ? "field is-marked" : "field"}>
           <span className="label">Postcode</span>
-          <span className="value">
-            {marked === `${id}-pc` ? <Marker /> : null}
-            {person.postcode}
-          </span>
+          <span className="value">{person.postcode}</span>
           <CopyButton
             value={person.postcode}
             label={`postcode ${person.postcode}`}
