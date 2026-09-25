@@ -3,6 +3,133 @@ import "./App.css";
 import { groupNumberFromPath, loadPeople, type Person } from "./sheet.ts";
 
 const TICKETS_URL = "https://glastonbury.seetickets.com/";
+const LONDON = "Europe/London";
+const COACH_SALE_AT = zonedDate(2026, 10, 1, 18, 0, LONDON);
+const GENERAL_SALE_AT = zonedDate(2026, 10, 4, 9, 0, LONDON);
+
+function zonedDate(
+  year: number,
+  month: number,
+  day: number,
+  hour: number,
+  minute: number,
+  timeZone: string,
+) {
+  const guess = Date.UTC(year, month - 1, day, hour, minute);
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).formatToParts(new Date(guess));
+  const pick = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value);
+  const asUtc = Date.UTC(
+    pick("year"),
+    pick("month") - 1,
+    pick("day"),
+    pick("hour") % 24,
+    pick("minute"),
+    pick("second"),
+  );
+  return new Date(guess - (asUtc - guess));
+}
+
+function placeName(timeZone: string) {
+  return timeZone.split("/").at(-1)?.replaceAll("_", " ") ?? timeZone;
+}
+
+function formatWhen(date: Date, timeZone: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    timeZone,
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(date);
+}
+
+function londonTimeLabel(date: Date) {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: LONDON,
+    hour: "numeric",
+    minute: "2-digit",
+    hourCycle: "h12",
+  }).format(date);
+}
+
+function useNow(until: number) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (until <= Date.now()) return;
+    const id = window.setInterval(() => {
+      const next = Date.now();
+      setNow(next);
+      if (until <= next) window.clearInterval(id);
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [until]);
+
+  return now;
+}
+
+function remainingParts(ms: number) {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  return {
+    days: Math.floor(totalSeconds / 86400),
+    hours: Math.floor((totalSeconds % 86400) / 3600),
+    minutes: Math.floor((totalSeconds % 3600) / 60),
+    seconds: totalSeconds % 60,
+  };
+}
+
+function SaleTimer({
+  now,
+  isCoachSale,
+}: {
+  now: number;
+  isCoachSale: boolean;
+}) {
+  const here = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const target = isCoachSale ? COACH_SALE_AT : GENERAL_SALE_AT;
+  const left = target.getTime() - now;
+  const parts = remainingParts(left);
+  const units = [
+    ["days", parts.days],
+    ["hours", parts.hours],
+    ["minutes", parts.minutes],
+    ["seconds", parts.seconds],
+  ] as const;
+  const when = londonTimeLabel(target);
+
+  if (left <= 0) return null;
+
+  return (
+    <div className="timer">
+      <p className="timer-label">Time until sale starts</p>
+      <div className="timer-clock">
+        {units.map(([label, value]) => (
+          <div className="timer-unit" key={label}>
+            <strong>{String(value).padStart(2, "0")}</strong>
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+      <p className="timer-where">
+        {here === LONDON
+          ? `You're on London time, so that's ${when} for you too.`
+          : `Where you are (${placeName(here)}): ${formatWhen(target, here)}.`}
+      </p>
+    </div>
+  );
+}
 
 function CopyIcon() {
   return (
@@ -157,7 +284,7 @@ function SwitchGroup({
   );
 }
 
-function Instructions() {
+function Instructions({ isCoachSale }: { isCoachSale: boolean }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -184,9 +311,14 @@ function Instructions() {
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => setOpen(true)}
-        style={{ fontWeight: "bold", marginTop: "10px", marginBottom: "10px" }}
+        style={{
+          fontWeight: "bold",
+          marginTop: "10px",
+          marginBottom: "10px",
+          color: "blue",
+        }}
       >
-        INSTRUCTIONS
+        READ INSTRUCTIONS HERE
       </button>
       {open ? (
         <>
@@ -214,6 +346,8 @@ function Instructions() {
                 <a href={TICKETS_URL} target="_blank" rel="noreferrer">
                   Glastonbury tickets
                 </a>
+                <br />
+                You might have to enter a captcha to access the queue.
               </li>
               <li>
                 Stay in the queue until you are let through.
@@ -233,9 +367,21 @@ function Instructions() {
                   alt="See Tickets deposit form with one main registration and five additional tickets"
                 />
               </li>
+              {isCoachSale ? (
+                <li>
+                  This is the coach sale. Choose one coach for all{" "}
+                  <strong>6 people</strong>. Everyone has to travel on that
+                  coach, and these tickets cannot be changed to general
+                  admission later. The coach fare is charged now, as well as the
+                  £600 deposit.
+                </li>
+              ) : null}
               <li>
                 Continue to payment. The card needs to cover{" "}
-                <strong>£600</strong>. Do not use American Express.
+                <strong>£600</strong> {isCoachSale ? "+ coach fare" : ""}. Do
+                not use American Express. It is £600{" "}
+                {isCoachSale ? "+ coach fare" : ""} for the entire group which
+                we will be reimbursed to you right away.
               </li>
               <li>
                 You are only finished when the confirmation screen appears. You
@@ -262,6 +408,8 @@ function App() {
   const [copied, setCopied] = useState<string | null>(null);
   const [marked, setMarked] = useState<string | null>(null);
   const groupNumber = groupNumberFromPath(window.location.pathname);
+  const now = useNow(GENERAL_SALE_AT.getTime());
+  const isCoachSale = now < COACH_SALE_AT.getTime();
 
   useEffect(() => {
     let active = true;
@@ -300,7 +448,21 @@ function App() {
     <main className="page">
       <h1>Glastonbury 2027</h1>
       <div className="actions">
-        <Instructions />
+        <Instructions isCoachSale={isCoachSale} />
+        <SaleTimer now={now} isCoachSale={isCoachSale} />
+        <p>
+          Click this link{" "}
+          <strong>
+            <u>before</u>{" "}
+            {isCoachSale ? "6:00 pm (London time)" : "9:00 GMT (London time)"}
+          </strong>{" "}
+          on{" "}
+          <strong>
+            {isCoachSale ? "Thursday 1st October" : "Sunday 4th October"}
+          </strong>{" "}
+          to get in the queue.
+        </p>
+
         <a
           className="tickets"
           href={TICKETS_URL}
@@ -324,6 +486,10 @@ function App() {
       {groups.map((group) => (
         <section key={group} className="group">
           <h2 className="group-title">Group {group}</h2>
+          <p style={{ fontSize: "14px", marginBottom: "10px" }}>
+            Copy and paste the registration number and postcode for each person
+            into the ticket website.
+          </p>
           <ul className="entries">
             {visible
               .filter((person) => person.group === group)

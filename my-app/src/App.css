@@ -119,6 +119,53 @@
   width: 180px;
 }
 
+.timer {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.timer-label {
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.timer-clock {
+  display: flex;
+  gap: 16px;
+}
+
+.timer-unit {
+  display: flex;
+  flex-direction: column;
+  min-width: 64px;
+}
+
+.timer-unit strong {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-h);
+  line-height: 1.1;
+}
+
+.timer-unit span {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.timer-where {
+  margin: 12px 0 0;
+  color: var(--text-h);
+  font-size: 15px;
+}
+
 .tickets {
   display: inline-flex;
   align-items: center;
