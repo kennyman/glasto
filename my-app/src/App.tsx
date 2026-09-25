@@ -350,7 +350,9 @@ function Instructions({ isCoachSale }: { isCoachSale: boolean }) {
                 You might have to enter a captcha to access the queue.
               </li>
               <li>
-                Stay in the queue until you are let through.
+                Stay in the queue until you are let through. Once you are let
+                through, stay focused and act fast as tickets can sell out in
+                the meantime.
                 <img
                   className="queue"
                   src={`${import.meta.env.BASE_URL}queue.webp`}
@@ -358,9 +360,10 @@ function Instructions({ isCoachSale }: { isCoachSale: boolean }) {
                 />
               </li>
               <li>
-                If you get through, enter a <strong>registration number</strong>{" "}
-                and <strong>postcode</strong> for all <strong>6 people</strong>.
-                It does not matter who the main booker is. Fill in the first
+                Congratulations! If you see this page you have been picked!
+                Enter a <strong>registration number</strong> and{" "}
+                <strong>postcode</strong> for all <strong>6 people</strong>. It
+                does not matter who the main booker is. Fill in the first
                 person, then add the other five.
                 <img
                   src={`${import.meta.env.BASE_URL}deposits.jpg`}
@@ -370,10 +373,9 @@ function Instructions({ isCoachSale }: { isCoachSale: boolean }) {
               {isCoachSale ? (
                 <li>
                   This is the coach sale. Choose one coach for all{" "}
-                  <strong>6 people</strong>. Everyone has to travel on that
-                  coach, and these tickets cannot be changed to general
-                  admission later. The coach fare is charged now, as well as the
-                  £600 deposit.
+                  <strong>6 people</strong>. Choose any available coach, time
+                  doesn't matter. Preferably London but if there aren't any
+                  available, choose any city.
                 </li>
               ) : null}
               <li>
